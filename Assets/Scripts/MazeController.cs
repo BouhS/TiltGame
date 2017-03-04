@@ -8,9 +8,7 @@ public class MazeController : MonoBehaviour {
 	// Use this for initialization
 	void Start ()
     {
-        GameObject go = GameObject.Find("MazeConfig");
-        MazeConfiguration mazeConfig = go.GetComponent<MazeConfiguration>();
-        transform.TransformPoint(mazeConfig.rows/2,0,-mazeConfig.columns/2);
+        transform.TransformPoint(PlayerPrefs.GetInt("rows")/ 2,0, -PlayerPrefs.GetInt("columns") / 2);
 
     }
     void FixedUpdate()
@@ -24,7 +22,7 @@ public class MazeController : MonoBehaviour {
         {
             if ((angleX >= 0 && angleX <= 45) || (angleX >= 315 && angleX <= 360) || (angleX < (45 + 1) && moveVertical < 0) || (angleX > (315 - 1) && moveVertical > 0))
             {
-                transform.Rotate(new Vector3(moveVertical, 0, 0), Space.World);
+                transform.Rotate(new Vector3(moveVertical, 0, 0), Space.Self);
                 //     transform.RotateAround(new Vector3(MazeRows / 2, 0, -MazeColumns / 2), new Vector3(1, 0, 0), moveVertical);
 
             }
@@ -34,7 +32,7 @@ public class MazeController : MonoBehaviour {
         {
             if ((angleZ >= 0 && angleZ <= 45) || (angleZ >= 315 && angleZ <= 360) || (angleZ < (45 + 1) && moveHorizontal > 0) || (angleZ > (315 - 1) && moveHorizontal < 0))
             {
-                transform.Rotate(new Vector3(0, 0, -moveHorizontal), Space.World);
+                transform.Rotate(new Vector3(0, 0, -moveHorizontal), Space.Self);
                 //transform.RotateAround(new Vector3(MazeRows / 2, 0, -MazeColumns / 2), new Vector3(0, 0, 1), -moveHorizontal);
 
             }
