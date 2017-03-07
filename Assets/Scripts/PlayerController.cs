@@ -18,7 +18,7 @@ public class PlayerController : MonoBehaviour
 
         int rows = PlayerPrefs.GetInt("rows", 1);
         int columns = PlayerPrefs.GetInt("columns", 1);
-        transform.position += new Vector3(-rows / 2, 0, columns / 2);
+        transform.position += new Vector3(-columns / 2, 0, rows / 2);
         
 
     }
@@ -28,6 +28,7 @@ public class PlayerController : MonoBehaviour
         if (other.gameObject.CompareTag("goal") )
         {
             winMessage.text = "You win!";
+            other.gameObject.SetActive(false);
             
         }
     }
