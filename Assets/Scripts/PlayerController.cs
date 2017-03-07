@@ -5,22 +5,15 @@ using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
-
-    public float speed;
     public Text winMessage;
-
     private Rigidbody rb;
 
     void Start()
     {
-        rb = GetComponent<Rigidbody>();
         winMessage.text = "";
-
         int rows = PlayerPrefs.GetInt("rows", 1);
         int columns = PlayerPrefs.GetInt("columns", 1);
         transform.position += new Vector3(-columns / 2, 0, rows / 2);
-        
-
     }
     
     void OnCollisionEnter(Collision other)

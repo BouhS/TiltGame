@@ -11,7 +11,6 @@ public class MazeGenerator : MonoBehaviour
     private MazeCell[,] maze;
     private Vector3 pos, vec, scale, floorPos, roofPos;
     private Quaternion rot;
-    private float angleX, angleZ;
     private float width, height;
 
 
@@ -40,7 +39,7 @@ public class MazeGenerator : MonoBehaviour
 
 
 
-    //Initalize the Maze
+    //Initalize the Maze as a mesh of MazeRows*MazeColumns cells
     void InitMaze()
     {
         maze = new MazeCell[MazeRows, MazeColumns];
@@ -50,8 +49,21 @@ public class MazeGenerator : MonoBehaviour
             for (int c = 0; c < MazeColumns; c++)
             {
                 MazeCell mazeCell = new MazeCell(r, c);
-                if (r == 0)
-                {
+
+                //create Floor
+                vec.Set(floorPos.x + (c * width), floorPos.y, floorPos.z - (r * height));
+                rot = Quaternion.Euler(0, 0, 0);
+                mazeCell.Floor = Instantiate(floor, vec, rot);
+                mazeCell.Floor.transform.parent = this.transform;
+                mazeCell.Floor.name = "Floor " + r + " " + c + "";
+
+                //create Roof
+                vec.Set(roofPos.x + (c * width), roofPos.y, roofPos.z - (r * height));
+                mazeCell.Roof = Instantiate(roof, vec, rot);
+                mazeCell.Roof.transform.parent = this.transform;
+                mazeCell.Roof.name = "Roof " + r + " " + c + "";
+
+                if (r == 0){
                     //create NorthWall
                     vec.Set(pos.x + (c*width), pos.y, pos.z);
                     rot = Quaternion.Euler(0, 0, 0);
@@ -60,26 +72,10 @@ public class MazeGenerator : MonoBehaviour
                     mazeCell.NWall.transform.parent = this.transform;
                     mazeCell.NWall.name = "North Wall " + r + " " + c + "";
 
-                }
-                else
-                {
+                }else{
                     mazeCell.NWall = maze[r - 1, c].SWall;
-
                 }
-
-                //create Floor
-                vec.Set(floorPos.x + (c * width), floorPos.y, floorPos.z - (r*height));
-                rot = Quaternion.Euler(0, 0, 0);
-                mazeCell.Floor = Instantiate(floor, vec, rot);
-                mazeCell.Floor.transform.parent = this.transform;
-                mazeCell.Floor.name = "Floor " + r + " " + c + "";
-
-                //create Roof
-                vec.Set(roofPos.x + (c * width), roofPos.y, roofPos.z - r*height);
-                mazeCell.Roof = Instantiate(roof, vec, rot);
-                mazeCell.Roof.transform.parent = this.transform;
-                mazeCell.Roof.name = "Roof " + r + " " + c + "";
-
+                
                 //create SouthWall
                 vec.Set(pos.x + (c * width), pos.y, pos.z - (r*height) - scale.x);
                 rot = Quaternion.Euler(0, 0, 0);
@@ -101,16 +97,15 @@ public class MazeGenerator : MonoBehaviour
                     mazeCell.WWall = maze[r, c - 1].EWall;
 
                 }
-                //create EastWall
 
-                vec.Set((pos.x + (c *width) + (scale.x) - (scale.x / 2)), pos.y, pos.z - (r*height) - (scale.x / 2));
+                //create EastWall
+                vec.Set((pos.x + (c * width) + (scale.x / 2)), pos.y, pos.z - (r * height) - (scale.x / 2));
                 rot = Quaternion.Euler(0, 90, 0);
                 mazeCell.EWall = Instantiate(wall, vec, rot);
                 mazeCell.EWall.transform.parent = this.transform;
                 mazeCell.EWall.name = "East Wall " + r + " " + c + "";
-
+                
                 mazeCell.Val = MazeColumns * r + c;
-
                 maze[r, c] = mazeCell;
             }
         }
@@ -119,31 +114,28 @@ public class MazeGenerator : MonoBehaviour
 
     }
 
+    //isNotConnected(r,c,w) returns false if the w wall of the cell[r,c] connects it to another cell,  true otherwise
     bool isNotConnected(int r, int c, int w)
     {
-        return ((r == 0 && w == 0) || (r == MazeRows - 1 && w == 1) || (c == 0 && w == 2) || (c == MazeColumns - 1 && w == 3));
+        return ((r == 0 && w == 0) || (r == MazeRows - 1 && w == 1)  || (c == MazeColumns - 1 && w == 2) || (c == 0 && w == 3));
 
     }
 
-    bool isClosedCell(int r, int c)
-    {
-        return ((maze[r, c].NWall != null) && (maze[r, c].SWall != null) && (maze[r, c].EWall != null) && (maze[r, c].WWall != null));
-    }
-    //r : row , c : column , w : way, val : value
+    /*spreadValue(row,column,way,value) spreads value to the cell[row,columns] and its neighbors  */
     void spreadValue(int r, int c, int w, int val)
     {
         maze[r, c].Val = val;
         switch (w)
         {
             case 0://North
-                if (r > 0 && maze[r, c].NWall == null)//pas de mur au nord
+                if (r > 0 && maze[r, c].NWall == null)//No wall North
                 {
                     if (maze[r - 1, c].Val != val)
                     {
                         spreadValue(r - 1, c, 0, val);
                     }
                 }
-                if (c < MazeColumns - 1 && maze[r, c].EWall == null)//pas de mur a l'est
+                if (c < MazeColumns - 1 && maze[r, c].EWall == null)//No wall East
                 {
                     if (maze[r, c + 1].Val != val)
                     {
@@ -151,7 +143,7 @@ public class MazeGenerator : MonoBehaviour
                     }
 
                 }
-                if (c > 0 && maze[r, c].WWall == null)//pas de mur a gauche
+                if (c > 0 && maze[r, c].WWall == null)//No wall West
                 {
                     if (maze[r, c - 1].Val != val)
                     {
@@ -162,14 +154,14 @@ public class MazeGenerator : MonoBehaviour
 
                 break;
             case 1://South
-                if (r < MazeRows - 1 && maze[r, c].SWall == null)//pas de mur au south
+                if (r < MazeRows - 1 && maze[r, c].SWall == null)//No Wall south
                 {
                     if (maze[r + 1, c].Val != val)
                     {
                         spreadValue(r + 1, c, 1, val);
                     }
                 }
-                if (c < MazeColumns - 1 && maze[r, c].EWall == null)//pas de mur a l'est
+                if (c < MazeColumns - 1 && maze[r, c].EWall == null)
                 {
                     if (maze[r, c + 1].Val != val)
                     {
@@ -177,7 +169,7 @@ public class MazeGenerator : MonoBehaviour
                     }
 
                 }
-                if (c > 0 && maze[r, c].WWall == null)//pas de mur a gauche
+                if (c > 0 && maze[r, c].WWall == null)
                 {
                     if (maze[r, c - 1].Val != val)
                     {
@@ -189,7 +181,7 @@ public class MazeGenerator : MonoBehaviour
                 break;
             case 2://East
 
-                if (r > 0 && maze[r, c].NWall == null)//pas de mur au nord
+                if (r > 0 && maze[r, c].NWall == null)
                 {
                     if (maze[r - 1, c].Val != val)
                     {
@@ -197,14 +189,14 @@ public class MazeGenerator : MonoBehaviour
                     }
                 }
 
-                if (r < MazeRows - 1 && maze[r, c].SWall == null)//pas de mur au south
+                if (r < MazeRows - 1 && maze[r, c].SWall == null)
                 {
                     if (maze[r + 1, c].Val != val)
                     {
                         spreadValue(r + 1, c, 1, val);
                     }
                 }
-                if (c < MazeColumns - 1 && maze[r, c].EWall == null)//pas de mur a l'est
+                if (c < MazeColumns - 1 && maze[r, c].EWall == null)
                 {
                     if (maze[r, c + 1].Val != val)
                     {
@@ -214,7 +206,7 @@ public class MazeGenerator : MonoBehaviour
                 }
                 break;
             case 3://West
-                if (r > 0 && maze[r, c].NWall == null)//pas de mur au nord
+                if (r > 0 && maze[r, c].NWall == null)
                 {
                     if (maze[r - 1, c].Val != val)
                     {
@@ -222,14 +214,14 @@ public class MazeGenerator : MonoBehaviour
                     }
                 }
 
-                if (r < MazeRows - 1 && maze[r, c].SWall == null)//pas de mur au south
+                if (r < MazeRows - 1 && maze[r, c].SWall == null)
                 {
                     if (maze[r + 1, c].Val != val)
                     {
                         spreadValue(r + 1, c, 1, val);
                     }
                 }
-                if (c > 0 && maze[r, c].WWall == null)//pas de mur a l'ouest
+                if (c > 0 && maze[r, c].WWall == null)
                 {
                     if (maze[r, c - 1].Val != val)
                     {
@@ -243,6 +235,7 @@ public class MazeGenerator : MonoBehaviour
 
     }
 
+    //Kruskal algorithm to compute a maze
     void KruskalAlgo()
     {
         int rRand, cRand, wRand;
@@ -251,10 +244,10 @@ public class MazeGenerator : MonoBehaviour
         int MAX = (MazeColumns * MazeRows) * 10;
         while (groupNb > 1 && count < MAX)
         {
-            //Randomly picking a wall
-            rRand = Random.Range(0, MazeRows - 1);
-            cRand = Random.Range(0, MazeColumns - 1);
-            wRand = Random.Range(0, 3);
+            //Randomly picking a cell and its wall
+            rRand = Random.Range(0, MazeRows );
+            cRand = Random.Range(0, MazeColumns );
+            wRand = Random.Range(0, 4);
 
             //Not OutOfBound
             if (!isNotConnected(rRand, cRand, wRand))
@@ -262,7 +255,7 @@ public class MazeGenerator : MonoBehaviour
                 switch (wRand)
                 {
                     case 0:
-                        //IF wall isn't destroyed AND values of the cells differ
+                        //If wall is there AND the value of this cell and its neighbor differ
                         if (maze[rRand, cRand].NWall != null && maze[rRand, cRand].Val != maze[rRand - 1, cRand].Val)
                         {
                             //Destroy the wall
@@ -310,50 +303,6 @@ public class MazeGenerator : MonoBehaviour
 
 
             count++;
-        }
-        if (groupNb > 1)
-        {
-            for (int i = 0; i < MazeRows; i++)
-            {
-                for (int j = 0; j < MazeColumns; j++)
-                {
-                    if (i > 0 && maze[i, j].NWall != null && maze[i, j].Val != maze[i - 1, j].Val)
-                    {
-                        Destroy(maze[i, j].NWall);
-                        maze[i, j].NWall = null;
-                        maze[i - 1, j].SWall = null;
-                        //On propage la valeur
-                        spreadValue(i - 1, j, 0, maze[i, j].Val);
-                    }
-                    if (i < MazeRows - 1 && maze[i, j].SWall != null && maze[i, j].Val != maze[i + 1, j].Val)
-                    {
-
-                        Destroy(maze[i, j].SWall);
-                        maze[i, j].SWall = null;
-                        maze[i + 1, j].NWall = null;
-                        //On propage la valeur
-                        spreadValue(i + 1, j, 1, maze[i, j].Val);
-                    }
-                    if (j < MazeColumns - 1 && maze[i, j].EWall != null && maze[i, j].Val != maze[i, j + 1].Val)
-                    {
-                        Destroy(maze[i, j].EWall);
-                        maze[i, j].EWall = null;
-                        maze[i, j + 1].WWall = null;
-                        //On propage la valeur
-                        spreadValue(i, j + 1, 2, maze[i, j].Val);
-                    }
-                    if (j > 0 && maze[i, j].WWall != null && maze[i, j].Val != maze[i, j - 1].Val)
-                    {
-
-                        Destroy(maze[i, j].WWall);
-                        maze[i, j].WWall = null;
-                        maze[i, j - 1].EWall = null;
-                        //On propage la valeur
-                        spreadValue(i, j - 1, 3, maze[i, j].Val);
-                    }
-
-                }
-            }
         }
 
     }

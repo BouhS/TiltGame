@@ -16,35 +16,20 @@ public class ButtonManager : MonoBehaviour {
 
     }
 
+    /*updateText() update the text of the sliders with the values selected*/
     public void updateText()
     {
         slideRT.text = slideR.value.ToString();
         slideCT.text = slideC.value.ToString();
     }
-    /*
-    public void setRowsColumnsNb(int c)
-    {
-        switch (c)
-        {
-            case 0:
-                PlayerPrefs.SetInt("rows", (int)slideR.value);
-                break;
-            case 1:
-                PlayerPrefs.SetInt("columns",(int) slideC.value);
-                break;
-        }
 
-    }
-    */
-
-
-
+    /*changeToScene(int level) changes the current scene to the level_scene*/
     public void ChangeToScene(int level)
     {
         if (level == -1)
         {
             Application.Quit();
-        }else if (level == 0)
+        }else if (level == 0)//menu
         {
             SceneManager.LoadScene(level);
         }else
