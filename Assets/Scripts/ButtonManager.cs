@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 using UnityEngine;
 using UnityEngine.UI;
+
 public class ButtonManager : MonoBehaviour {
 
     public Slider slideR, slideC;
@@ -40,9 +41,12 @@ public class ButtonManager : MonoBehaviour {
 
     public void ChangeToScene(int level)
     {
-        if(level == -1)
+        if (level == -1)
         {
             Application.Quit();
+        }else if (level == 0)
+        {
+            SceneManager.LoadScene(level);
         }else
         {
             PlayerPrefs.SetInt("rows", (int)slideR.value);
