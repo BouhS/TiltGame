@@ -48,7 +48,7 @@ public class MazeGenerator : MonoBehaviour
         {
             for (int c = 0; c < MazeColumns; c++)
             {
-                MazeCell mazeCell = new MazeCell(r, c);
+                MazeCell mazeCell = new MazeCell();
 
                 //create Floor
                 vec.Set(floorPos.x + (c * width), floorPos.y, floorPos.z - (r * height));

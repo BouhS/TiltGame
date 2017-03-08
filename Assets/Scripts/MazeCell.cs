@@ -11,7 +11,6 @@ public class MazeCell  {
     private GameObject eWall;
     private GameObject wWall;
     private int val;
-    private int c, r;
 
     public GameObject Floor { get; set; }
     public GameObject Roof { get; set; }
@@ -20,15 +19,4 @@ public class MazeCell  {
     public GameObject EWall { get; set; }
     public GameObject WWall { get; set; }
     public int Val { get; set; }
-
-
-    //Constructor
-    public MazeCell(int r, int c)
-    {
-        this.c = c;
-        this.r = r;
-    }
-    
-    
-
 }
