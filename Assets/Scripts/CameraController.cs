@@ -11,9 +11,9 @@ public class CameraController : MonoBehaviour {
         float floorHeight = PlayerPrefs.GetFloat("floorHeight") ;
         float floorWidth = PlayerPrefs.GetFloat("floorWidth");
         if(this.name == "Main Camera2"){
-            this.transform.position = new Vector3(columns / 2, Mathf.Sqrt(Mathf.Pow(columns * floorWidth, 2) + Mathf.Pow(rows * floorHeight, 2)), -rows / 2);
+            this.transform.position = new Vector3(0, Mathf.Sqrt(Mathf.Pow(columns * floorWidth, 2) + Mathf.Pow(rows * floorHeight, 2)), -rows/2 );
         }else if (this.name == "SideView Camera"){
-            this.transform.position = new Vector3(columns/2 , 0 , -rows*4 );
+            this.transform.position = new Vector3(0 , 0 , -4*Mathf.Max(columns,rows) );
         }
     }
 }
